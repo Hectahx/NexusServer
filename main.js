@@ -52,7 +52,11 @@ wsServer.on("request", (request) => {
 
 		if (result.method === "join") {
 			const clientId = result.clientId;
-			const gameId = result.gameId.toUpperCase();
+			var gameId;
+			try{
+				gameId = result.gameId.toUpperCase();
+			}
+			catch{}
 			const name = result.name;
 
 			const game = games[gameId];
