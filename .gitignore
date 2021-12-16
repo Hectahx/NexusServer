@@ -126,3 +126,6 @@ dist
 .pnp.*
 
 test.js
+
+cert.pem
+key.pem

@@ -15,6 +15,7 @@ httpServer.listen(port, () => {
 //hashmap
 const clients = {};
 const games = {};
+const gameList = [];
 
 const wsServer = new websocketServer({
 	httpServer: httpServer,
@@ -41,6 +42,7 @@ wsServer.on("request", (request) => {
 				limit: 2,
 				clients: [],
 			};
+			gameList.push(games[gameId]);
 			const payload = {
 				method: "create",
 				game: games[gameId],
@@ -53,10 +55,12 @@ wsServer.on("request", (request) => {
 		if (result.method === "join") {
 			const clientId = result.clientId;
 			var gameId;
-			try{
+			try {
 				gameId = result.gameId.toUpperCase();
+			} catch {
+				console.log("No such game exists");
+				return;
 			}
-			catch{}
 			const name = result.name;
 
 			const game = games[gameId];
@@ -84,6 +88,17 @@ wsServer.on("request", (request) => {
 				game: game,
 			};
 
+			/*
+			game.timer = setTimeout(() => {
+				noJoinPayLoad = {
+					method: "noShow"
+				}
+				game.clients.forEach((c) => {
+					clients[c.clientId].connection.send(JSON.stringify(startPayload));
+				});
+				//delete games[gameId];
+			}, 5000);*/
+
 			//loop through all clients and tell them that people have joined
 			game.clients.forEach((c) => {
 				clients[c.clientId].connection.send(JSON.stringify(payload));
@@ -95,6 +110,8 @@ wsServer.on("request", (request) => {
 				const startPayload = {
 					method: "start",
 				};
+
+				clearTimeout(game.timer);
 
 				setTimeout(() => {
 					game.clients.forEach((c) => {
@@ -453,6 +470,7 @@ wsServer.on("request", (request) => {
 	const payload = {
 		method: "connect",
 		clientId: clientId,
+		games: gameList,
 	};
 
 	console.log(`Client ${clientId} connected`);
