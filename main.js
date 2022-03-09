@@ -131,6 +131,7 @@ wsServer.on("request", (request) => {
 			const game = games[gameId];
 
 			let state = games[gameId].state;
+			
 			if (!state) {
 				state = {
 					buttons: [],
@@ -366,7 +367,10 @@ wsServer.on("request", (request) => {
 				//console.log(`${card} has been disabled`);
 			}
 
-			game.state.cards[type][color].isActive = true;
+			try {
+				game.state.cards[type][color].isActive = true;
+			} catch (err) {console.log(err);}
+			
 		}
 
 		if (result.method == "doomCards") {
