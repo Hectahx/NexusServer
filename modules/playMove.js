@@ -1,18 +1,26 @@
 const { deadToken } = require("./deadToken");
 const { checkWin } = require("./checkWin");
-const { timeoutHandler, timeoutFunction } = require("./timeout.js")
+const { timeoutFunction } = require("./timeout.js");
 
 function playMove(result) {
   const clientId = result.clientId;
-  const gameId = result.gameId;
+  const gameId = result.gameId.toLocaleUpperCase();
+  //const gameId = result.gameId;
   const buttonId = result.buttonId;
   const color = result.color;
   const clientName = result.clientName;
 
   const game = games[gameId];
 
-  let state = game.state;
-  
+  let state
+
+  try{
+    state = game.state;
+  }
+  catch{
+    console.log("Game doesnt exist");
+    return;
+  }
 
   try {
     clearTimeout(state.timer);

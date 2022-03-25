@@ -1,6 +1,6 @@
 function timeoutHandler(result) {
   const color = result.color;
-  const gameId = result.gameId;
+  const gameId = result.gameId.toLocaleUpperCase();;
   const game = games[gameId];
 
   clearTimeout(game.state.timer);

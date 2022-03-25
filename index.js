@@ -36,7 +36,8 @@ wsServer.on("request", (request) => {
     //I have received a new message from the client
     //user wants to create a new game
     if (result.method === "create") {
-      const gameId = (S4() + S4()).toUpperCase().substring(0, 6);//creates a 6 digit game id so other players can join easily
+      const gameId = (S4() + S4()).toUpperCase().substring(0, 6).toLocaleUpperCase();//creates a 6 digit game id so other players can join easily
+      //const gameId = (S4() + S4()).toUpperCase().substring(0, 6);//creates a 6 digit game id so other players can join easily
       console.log(`Creating game with id of ${gameId}`);
 
       games[gameId] = {
