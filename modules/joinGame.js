@@ -36,7 +36,16 @@ function joinGame(result) {
 
   //loop through all clients and tell them that people have joined
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(payload));
+    try {
+      clients[c.clientId].connection.send(
+        JSON.stringify(payload, (key, value) => {
+          if (key === "timer") return "";
+          return value;
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   console.log(`Client ID of "${clientId}" and color "${color}" has joined`);
@@ -50,7 +59,11 @@ function joinGame(result) {
 
     setTimeout(() => {
       game.clients.forEach((c) => {
-        clients[c.clientId].connection.send(JSON.stringify(startPayload));
+        try {
+          clients[c.clientId].connection.send(JSON.stringify(startPayload));
+        } catch (error) {
+          console.error(error);
+        }
       });
     }, 2000);
   }

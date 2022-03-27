@@ -5,19 +5,17 @@ const { timeoutFunction } = require("./timeout.js");
 function playMove(result) {
   const clientId = result.clientId;
   const gameId = result.gameId.toLocaleUpperCase();
-  //const gameId = result.gameId;
   const buttonId = result.buttonId;
   const color = result.color;
   const clientName = result.clientName;
 
   const game = games[gameId];
 
-  let state
+  let state;
 
-  try{
+  try {
     state = game.state;
-  }
-  catch{
+  } catch {
     console.log("Game doesnt exist");
     return;
   }
@@ -48,8 +46,13 @@ function playMove(result) {
           color: color,
         };
         game.clients.forEach((c) => {
-          clients[c.clientId].connection.send(JSON.stringify(remPayload)); //this is sent to remove the extra card from the playing field
+          try {
+            clients[c.clientId].connection.send(JSON.stringify(remPayload)); //this is sent to remove the extra card from the playing field
+          } catch (error) {
+            console.error(error);
+          }
         });
+        state.cards["enabledCard"][color].isActive = false;
       } else {
         toReturn = true;
       }
@@ -69,7 +72,11 @@ function playMove(result) {
         color: color,
       };
       game.clients.forEach((c) => {
-        clients[c.clientId].connection.send(JSON.stringify(remPayload)); //this is sent to remove the extra card from the playing field
+        try {
+          clients[c.clientId].connection.send(JSON.stringify(remPayload)); //this is sent to remove the extra card from the playing field
+        } catch (error) {
+          console.error(error);
+        }
       });
     }
   } catch {}
@@ -87,7 +94,11 @@ function playMove(result) {
   };
 
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(payload));
+    try {
+      clients[c.clientId].connection.send(JSON.stringify(payload));
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   //Below is the win code
@@ -154,7 +165,11 @@ function playMove(result) {
     }
 
     game.clients.forEach((c) => {
-      clients[c.clientId].connection.send(JSON.stringify(moveorCardsPayload));
+      try {
+        clients[c.clientId].connection.send(JSON.stringify(moveorCardsPayload));
+      } catch (error) {
+        console.error(error);
+      }
     });
 
     var deadTokenId = deadToken(game.size, game);
@@ -175,8 +190,12 @@ function playMove(result) {
   };
 
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(winPayload));
-    console.log("win sent to " + c.clientId);
+    try {
+      clients[c.clientId].connection.send(JSON.stringify(winPayload));
+      console.log("win sent to " + c.clientId);
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   delete games[gameId]; //this deletes the game from the hashmap once won

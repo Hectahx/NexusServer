@@ -23,7 +23,12 @@ function deadToken(size, game) {
     };
 
     game.clients.forEach((c) => {
-      clients[c.clientId].connection.send(JSON.stringify(deadTokenPayload)); //this is send the dead token to the users
+      try{
+        clients[c.clientId].connection.send(JSON.stringify(deadTokenPayload)); //this is send the dead token to the users
+      }
+      catch (error){
+        console.error(error);
+      }
     });
 
     return chosenToken;

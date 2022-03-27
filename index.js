@@ -3,7 +3,8 @@ const { joinGame } = require("./modules/joinGame");
 const { playMove } = require("./modules/playMove");
 const { setCards } = require("./modules/setCards");
 const { doomCards } = require("./modules/doomCards");
-const { timeoutHandler } = require("./modules/timeout");
+const { timeoutHandler, timeoutFunction } = require("./modules/timeout");
+const { leaveGame } = require("./modules/leaveGame");
 //Separated all the functions into files to make development and debugging easier
 
 const http = require("http");
@@ -29,6 +30,9 @@ wsServer.on("request", (request) => {
   connection.on("close", (err) => {
     console.log(`Socket closed, reason ${err}`);
   });
+  connection.on("error", (err) => {
+    console.log(err);
+  });
   connection.on("message", (message) => {
     const string = new TextDecoder().decode(message.binaryData);
     const result = JSON.parse(string);
@@ -50,17 +54,25 @@ wsServer.on("request", (request) => {
           moves: 0,
           extraCardMoves: 0,
           skipTurnMoves: 0,
-          cards : {}
+          cards : {},
+          timer : setTimeout(() => timeoutFunction(games[gameId]), 20000)
+        }
       }
-    }
+      
       gameList.push(games[gameId]);
+      gameList = gameList.map(({state, ...rest}) => rest)
       const payload = {
         method: "create",
         game: games[gameId],
       };
 
       const con = clients[clientId].connection;
-      con.send(JSON.stringify(payload));
+      con.send(
+        JSON.stringify(payload, (key, value) => {
+        if(key === "timer") return "";
+        return value;
+        })
+      );
     }
 
     if (result.method === "join") {
@@ -86,6 +98,10 @@ wsServer.on("request", (request) => {
     if (result.method == "timeout") {
       timeoutHandler(result);
     }
+    if(result.method == "leaveGame"){
+      //TODO Need to dispose of game properly when a player chooses to leave
+      leaveGame(result)
+    }
   });
 
   //generate a new client id
@@ -101,7 +117,11 @@ wsServer.on("request", (request) => {
   };
 
   console.log(`Client ${clientId} connected`);
-  connection.send(JSON.stringify(payload));
+  try {
+    connection.send(JSON.stringify(payload));
+  } catch (error) {
+    console.error(error)
+  }
 });
 
 function S4() {

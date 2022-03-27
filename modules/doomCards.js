@@ -34,7 +34,12 @@ function doomCards(result){
       };
 
       game.clients.forEach((c) => {
-        clients[c.clientId].connection.send(JSON.stringify(snatchPayload));
+        try{
+          clients[c.clientId].connection.send(JSON.stringify(snatchPayload));
+        }
+        catch(error){
+          console.error(error);
+        }
       });
     }
     if (type == "skipTurn") {
@@ -67,7 +72,12 @@ function doomCards(result){
       };
 
       game.clients.forEach((c) => {
-        clients[c.clientId].connection.send(JSON.stringify(snatchPayload));
+        try {
+          clients[c.clientId].connection.send(JSON.stringify(snatchPayload));
+        } catch (error) {
+          console.error(error);
+        }
+        
       });
     }
 }

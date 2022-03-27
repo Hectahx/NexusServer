@@ -39,8 +39,14 @@ function cards(result) {
   };
 
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(cardPayload));
-    console.log("cards send to " + c.clientId);
+    try{
+      clients[c.clientId].connection.send(JSON.stringify(cardPayload));
+      console.log("cards send to " + c.clientId);
+    }
+    catch(error){
+      console.error(error);
+    }
+    
   });
 }
 

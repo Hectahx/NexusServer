@@ -1,10 +1,10 @@
 function timeoutHandler(result) {
   const color = result.color;
-  const gameId = result.gameId.toLocaleUpperCase();;
+  const gameId = result.gameId.toLocaleUpperCase();
   const game = games[gameId];
 
   clearTimeout(game.state.timer);
-  game.state.timer = setTimeout(() => timeoutFunction(game), 5000);
+  game.state.timer = setTimeout(() => timeoutFunction(game), 20000);
 
   continuePayload = {
     method: "continue",
@@ -12,7 +12,11 @@ function timeoutHandler(result) {
     name: game.state.name,
   };
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(continuePayload));
+    try {
+      clients[c.clientId].connection.send(JSON.stringify(continuePayload));
+    } catch (error) {
+      console.error(error);
+    }
   });
 }
 
@@ -25,7 +29,11 @@ function timeoutFunction(game) {
     name: game.state.name,
   };
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(timeoutPayload));
+    try {
+      clients[c.clientId].connection.send(JSON.stringify(timeoutPayload));
+    } catch (error) {
+      console.error(error);
+    }
   });
   clearInterval(game.state.timer);
   game.state.timer = setTimeout(() => disconnectTimeout(game), 10000);
@@ -54,11 +62,18 @@ function disconnectTimeout(game) {
 
   console.log(newClients.length);
 
-  if (newClients.length == 1) disconnectPayload.continue = false;
+  if (newClients.length <= 1) {
+    disconnectPayload.continue = false;
+    delete games[game.gameId];
+  }
 
   game.clients.forEach((c) => {
-    clients[c.clientId].connection.send(JSON.stringify(disconnectPayload));
+    try {
+      clients[c.clientId].connection.send(JSON.stringify(disconnectPayload));
+    } catch (error) {
+      console.error(error);
+    }
   });
 }
 
-module.exports = {timeoutHandler, timeoutFunction}
+module.exports = { timeoutHandler, timeoutFunction };
