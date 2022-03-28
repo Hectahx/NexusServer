@@ -100,7 +100,7 @@ wsServer.on("request", (request) => {
     }
     if(result.method == "leaveGame"){
       //TODO Need to dispose of game properly when a player chooses to leave
-      leaveGame(result)
+      //leaveGame(result)
     }
   });
 

@@ -50,7 +50,7 @@ function disconnectTimeout(game) {
   var newClients = {};
 
   newClients = JSON.parse(JSON.stringify(game.clients));
-  console.log(newClients);
+  //console.log(newClients);
 
   var counter = 0;
   var index;
@@ -60,7 +60,7 @@ function disconnectTimeout(game) {
   });
   newClients.splice(index, 1);
 
-  console.log(newClients.length);
+  //console.log(newClients.length);
 
   if (newClients.length <= 1) {
     disconnectPayload.continue = false;
