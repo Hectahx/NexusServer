@@ -93,7 +93,8 @@ wsServer.on("request", (request) => {
       //This is to send a message to the discord chat with the game code
       axios({
         method: "POST",
-        url: "https://discord.com/api/webhooks/958081893260198028/wuPMXBoAGXBw6ydN8i3ogV0HXG8K3zEOqhHSkvMHSvRs_BzUQxzLz4YUEUKoIteTqbLD",
+        //url: "https://discord.com/api/webhooks/958081893260198028/wuPMXBoAGXBw6ydN8i3ogV0HXG8K3zEOqhHSkvMHSvRs_BzUQxzLz4YUEUKoIteTqbLD", //URL for my private server
+        url : "https://discord.com/api/webhooks/958348526327324712/NnhendFOosCg6cofKb_4enaVnaqEaoThFOfSTLOtU27g4ToGw-hXzmkt44-Fb1XbwTE8", //URL for Nexus Server
         data: {
           username: "Nexus Game Codes",
           avatar_url: "https://cdn.discordapp.com/icons/895666199550099507/cb4bb3ea134d855319bd34bb3b0b4ec9.png?size=4096",
