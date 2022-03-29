@@ -8,6 +8,8 @@ const { leaveGame } = require("./modules/leaveGame");
 //Separated all the functions into files to make development and debugging easier
 
 const http = require("http");
+const axios = require("axios").default;
+
 const websocketServer = require("websocket").server;
 const port = 6969;
 const httpServer = http.createServer();
@@ -40,27 +42,41 @@ wsServer.on("request", (request) => {
     //I have received a new message from the client
     //user wants to create a new game
     if (result.method === "create") {
-      const gameId = (S4() + S4()).toUpperCase().substring(0, 6).toLocaleUpperCase();//creates a 6 digit game id so other players can join easily
-      //const gameId = (S4() + S4()).toUpperCase().substring(0, 6);//creates a 6 digit game id so other players can join easily
+      const gameId = (S4() + S4())
+        .toUpperCase()
+        .substring(0, 6)
+        .toLocaleUpperCase(); //creates a 6 digit game id so other players can join easily
+      //creates a 6 digit game id so other players can join easily
       console.log(`Creating game with id of ${gameId}`);
+
+      var gameMode = result.gameMode.toLowerCase();
+
+      var playerLimit = result.playerSize;
+
+      console.log(gameMode);
+
+      console.log(playerLimit);
+
+
 
       games[gameId] = {
         id: gameId,
-        size: 10,
-        limit: 2,
+        size: 10, //This is the length of the board. So 10 means 10x10 board
+        //limit: 2, //This is how many players can play in a game
+        limit: playerLimit, //This is how many players can play in a game
         clients: [],
-        state : {
+        state: {
           buttons: [],
           moves: 0,
           extraCardMoves: 0,
           skipTurnMoves: 0,
-          cards : {},
-          timer : setTimeout(() => timeoutFunction(games[gameId]), 20000)
-        }
-      }
-      
+          cards: {},
+          timer: setTimeout(() => timeoutFunction(games[gameId]), 20000),
+        },
+      };
+
       gameList.push(games[gameId]);
-      gameList = gameList.map(({state, ...rest}) => rest)
+      gameList = gameList.map(({ state, ...rest }) => rest); // this line removes the state attribute from the gameList var
       const payload = {
         method: "create",
         game: games[gameId],
@@ -69,10 +85,21 @@ wsServer.on("request", (request) => {
       const con = clients[clientId].connection;
       con.send(
         JSON.stringify(payload, (key, value) => {
-        if(key === "timer") return "";
-        return value;
+          if (key === "timer") return "";
+          return value;
         })
       );
+
+      //This is to send a message to the discord chat with the game code
+      axios({
+        method: "POST",
+        url: "https://discord.com/api/webhooks/958081893260198028/wuPMXBoAGXBw6ydN8i3ogV0HXG8K3zEOqhHSkvMHSvRs_BzUQxzLz4YUEUKoIteTqbLD",
+        data: {
+          username: "Nexus Game Codes",
+          avatar_url: "https://cdn.discordapp.com/icons/895666199550099507/cb4bb3ea134d855319bd34bb3b0b4ec9.png?size=4096",
+          content: `Game code is ${gameId}`,
+        },
+      });
     }
 
     if (result.method === "join") {
@@ -98,7 +125,7 @@ wsServer.on("request", (request) => {
     if (result.method == "timeout") {
       timeoutHandler(result);
     }
-    if(result.method == "leaveGame"){
+    if (result.method == "leaveGame") {
       //TODO Need to dispose of game properly when a player chooses to leave
       //leaveGame(result)
     }
@@ -120,7 +147,7 @@ wsServer.on("request", (request) => {
   try {
     connection.send(JSON.stringify(payload));
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 });
 
