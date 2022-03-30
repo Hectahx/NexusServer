@@ -4,7 +4,7 @@ function deadToken(size, game) {
   var breakLoop = false;
   var chosenToken;
 
-  if (rand >= 85) {
+  if (rand >= 75) {
     while (!done) {
       rand = Math.floor(Math.random() * Math.pow(size, 2));
 
