@@ -1,3 +1,5 @@
+const { timedModeTimeout } = require("./timedModeTimeout");
+
 function joinGame(result) {
   const clientId = result.clientId;
   var gameId;
@@ -7,6 +9,7 @@ function joinGame(result) {
     console.log("No such game exists");
     return;
   }
+
   const name = result.name;
 
   const game = games[gameId];
@@ -32,6 +35,7 @@ function joinGame(result) {
   const payload = {
     method: "join",
     game: game,
+    gameMode: game.gameMode
   };
 
   //loop through all clients and tell them that people have joined
@@ -58,6 +62,7 @@ function joinGame(result) {
     clearTimeout(game.timer);
 
     setTimeout(() => {
+      //This sends a request to the other clients to start the game 2 seconds after the last person has joined
       game.clients.forEach((c) => {
         try {
           clients[c.clientId].connection.send(JSON.stringify(startPayload));
@@ -65,6 +70,15 @@ function joinGame(result) {
           console.error(error);
         }
       });
+
+      if ((game.gameMode = "timed")) {
+        //If the gamemode is timed it sets the 60 second timer
+        game.state.gameModeTimer = setTimeout(
+          () => timedModeTimeout(game),
+          game.timeLength * 1000
+        );
+      }
+      
     }, 2000);
   }
 }

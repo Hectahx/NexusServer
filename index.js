@@ -5,6 +5,7 @@ const { setCards } = require("./modules/setCards");
 const { doomCards } = require("./modules/doomCards");
 const { timeoutHandler, timeoutFunction } = require("./modules/timeout");
 const { leaveGame } = require("./modules/leaveGame");
+const { timedModeTimeout } = require("./modules/timedModeTimeout")
 //Separated all the functions into files to make development and debugging easier
 
 const http = require("http");
@@ -22,6 +23,7 @@ httpServer.listen(port, () => {
 global.clients = {};
 global.games = {};
 global.gameList = [];
+
 
 const wsServer = new websocketServer({
   httpServer: httpServer,
@@ -68,15 +70,22 @@ wsServer.on("request", (request) => {
         //limit: 2, //This is how many players can play in a game
         limit: playerLimit, //This is how many players can play in a game
         clients: [],
+        gameMode : gameMode,
         state: {
           buttons: [],
           moves: 0,
           extraCardMoves: 0,
           skipTurnMoves: 0,
           cards: {},
-          timer: setTimeout(() => timeoutFunction(games[gameId]), 20000),
+          //timer: setTimeout(() => timeoutFunction(games[gameId]), 20000),
         },
       };
+
+      if(gameMode == "timed"){
+        games[gameId].state.gameModeTimer  = null;
+        games[gameId].timeLength  = 60; //Gonna try to let it so the player can choose
+        //This is the game timer so once this timer has finished it will stop the game
+      }
 
       gameList.push(games[gameId]);
       gameList = gameList.map(({ state, ...rest }) => rest); // this line removes the state attribute from the gameList var
@@ -94,6 +103,7 @@ wsServer.on("request", (request) => {
       );
 
       //This is to send a message to the discord chat with the game code
+      /*
       axios({
         method: "POST",
         url : process.env.DISCORD_WEBHOOK, //URL for Nexus Server
@@ -103,7 +113,10 @@ wsServer.on("request", (request) => {
           content: `Game code is ${gameId}`,
         },
       });
+      */
+      
     }
+    
 
     if (result.method === "join") {
       joinGame(result);

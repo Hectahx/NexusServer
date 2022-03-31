@@ -65,6 +65,11 @@ function disconnectTimeout(game) {
   if (newClients.length <= 1) {
     disconnectPayload.continue = false;
     delete games[game.gameId];
+    /*
+    games = games.filter((element) => {
+      return element !== undefined;
+    });
+    */
   }
 
   game.clients.forEach((c) => {

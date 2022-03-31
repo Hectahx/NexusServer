@@ -109,7 +109,7 @@ function playMove(result) {
     button[element[0]] = element[1];
   });
 
-  if (!checkWin(button, color, 10)) {
+  if (!checkWin(button, color, 10)) { //This if statement is executed when no one has won
     //This if statement checks if draw
     if (state.moves == Math.pow(game.size, 2)) {
       console.log("draw");
@@ -178,6 +178,12 @@ function playMove(result) {
     state.timer = setTimeout(() => timeoutFunction(game), 20000);
 
     return; //so win code isnt executed
+  }
+
+  //Below is the code that is executed once the game has been won
+
+  if(game.gameMode == "timed"){
+    clearTimeout(game.gameModeTimer)
   }
 
   const winPayload = {

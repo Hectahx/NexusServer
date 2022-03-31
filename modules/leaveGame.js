@@ -20,9 +20,14 @@ function leaveGame(result) {
     continue: true,
   };
 
-  if(clients.length == 1){
-      disconnectPayload.continue = false;
-      delete games[gameId]
+  if (clients.length == 1) {
+    disconnectPayload.continue = false;
+    delete games[gameId];
+    /*
+    games = games.filter((element) => {
+      return element !== undefined;
+    });
+    */
   }
 }
 
