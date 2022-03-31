@@ -5,7 +5,7 @@ const { setCards } = require("./modules/setCards");
 const { doomCards } = require("./modules/doomCards");
 const { timeoutHandler, timeoutFunction } = require("./modules/timeout");
 const { leaveGame } = require("./modules/leaveGame");
-const { timedModeTimeout } = require("./modules/timedModeTimeout")
+const { timedModeTimeout } = require("./modules/timedModeTimeout");
 //Separated all the functions into files to make development and debugging easier
 
 const http = require("http");
@@ -23,7 +23,6 @@ httpServer.listen(port, () => {
 global.clients = {};
 global.games = {};
 global.gameList = [];
-
 
 const wsServer = new websocketServer({
   httpServer: httpServer,
@@ -53,18 +52,16 @@ wsServer.on("request", (request) => {
       console.log(`Creating game with id of ${gameId}`);
 
       var gameMode = result.gameMode.toLowerCase();
-
       var playerLimit = result.playerSize;
-      
-      console.log(gameMode);
+      var isPrivate = result.isPrivate;
 
       games[gameId] = {
         id: gameId,
         size: 10, //This is the length of the board. So 10 means 10x10 board
-        //limit: 2, //This is how many players can play in a game
+        isPrivate: isPrivate,
         limit: playerLimit, //This is how many players can play in a game
         clients: [],
-        gameMode : gameMode,
+        gameMode: gameMode,
         state: {
           buttons: [],
           moves: 0,
@@ -75,14 +72,23 @@ wsServer.on("request", (request) => {
         },
       };
 
-      if(gameMode == "timed"){
-        games[gameId].state.gameModeTimer  = null;
-        games[gameId].timeLength  = 60; //Gonna try to let it so the player can choose
+      games[gameId].isPrivate = isPrivate;
+
+      if (isPrivate) {
+        games[gameId].password = result.password;
+      }
+
+      if (gameMode == "timed") {
+        games[gameId].state.gameModeTimer = null;
+        games[gameId].timeLength = parseInt(result.timeLength); //Gonna try to let it so the player can choose
         //This is the game timer so once this timer has finished it will stop the game
       }
 
-      gameList.push(games[gameId]);
-      gameList = gameList.map(({ state, ...rest }) => rest); // this line removes the state attribute from the gameList var
+      if (!isPrivate) {
+        gameList.push(games[gameId]);
+        gameList = gameList.map(({ state, ...rest }) => rest); // this line removes the state attribute from the gameList var
+      }
+
       const payload = {
         method: "create",
         game: games[gameId],
@@ -108,9 +114,7 @@ wsServer.on("request", (request) => {
         },
       });
       */
-      
     }
-    
 
     if (result.method === "join") {
       joinGame(result);

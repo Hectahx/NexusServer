@@ -6,7 +6,7 @@ function joinGame(result) {
   try {
     gameId = result.gameId.toUpperCase();
   } catch {
-    console.log("No such game exists");
+    console.log("Game ID Invalid");
     return;
   }
 
@@ -14,10 +14,20 @@ function joinGame(result) {
 
   const game = games[gameId];
   if (!game) {
+    console.log(gameId);
     console.log("No such game exists");
     return;
     //Add Error Message For Non existance games and full lobbies
   }
+
+  if(game.isPrivate){
+    var gamePassword = result.password
+    if(game.password != gamePassword){
+      console.log("incorrect password");
+      return;
+    }
+  }
+
   if (game.clients.length >= game.limit) {
     console.log("ruh roh raggy robby is rull");
     return;
