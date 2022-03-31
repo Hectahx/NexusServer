@@ -3,6 +3,8 @@ function timedModeTimeout(game) {
     method: "timedModeFinished",
   };
 
+  console.log("timed mode timeouit");
+
   game.clients.forEach((c) => {
     try {
       clients[c.clientId].connection.send(JSON.stringify(timedModePayload));

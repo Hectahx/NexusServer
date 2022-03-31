@@ -71,7 +71,7 @@ function joinGame(result) {
         }
       });
 
-      if ((game.gameMode = "timed")) {
+      if ((game.gameMode == "timed")) {
         //If the gamemode is timed it sets the 60 second timer
         game.state.gameModeTimer = setTimeout(
           () => timedModeTimeout(game),

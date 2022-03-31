@@ -55,14 +55,8 @@ wsServer.on("request", (request) => {
       var gameMode = result.gameMode.toLowerCase();
 
       var playerLimit = result.playerSize;
-
       
-
       console.log(gameMode);
-
-      console.log(playerLimit);
-
-
 
       games[gameId] = {
         id: gameId,
