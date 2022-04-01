@@ -5,18 +5,33 @@ const { setCards } = require("./modules/setCards");
 const { doomCards } = require("./modules/doomCards");
 const { timeoutHandler, timeoutFunction } = require("./modules/timeout");
 const { leaveGame } = require("./modules/leaveGame");
-const { timedModeTimeout } = require("./modules/timedModeTimeout");
+const { login } = require("./modules/login");
+const { signup } = require("./modules/signup");
+const { guid, S4 } = require("./modules/guid");
 //Separated all the functions into files to make development and debugging easier
 
-const http = require("http");
+const https = require("https");
 const axios = require("axios").default;
 require("dotenv").config();
+const { readFileSync } = require("fs");
+const mysql = require("mysql2");
 
 const websocketServer = require("websocket").server;
 const port = 6969;
-const httpServer = http.createServer();
-httpServer.listen(port, () => {
+const httpsServer = https.createServer({
+  cert: readFileSync("./Keys/cert.pem"),
+  key: readFileSync("./Keys/key.pem"),
+});
+httpsServer.listen(port, () => {
   console.log(`Listening on ${port}`);
+});
+
+global.pool = mysql.createPool({
+  connectionLimit: 10,
+  host: "139.59.162.2",
+  user: process.env.DATABASE_USERNAME,
+  password: process.env.DATABASE_PASSWORD, 
+  database: process.env.DATABASE,
 });
 
 //global hashmap of clients, games and an array of all games
@@ -25,7 +40,7 @@ global.games = {};
 global.gameList = [];
 
 const wsServer = new websocketServer({
-  httpServer: httpServer,
+  httpServer: httpsServer,
 });
 
 wsServer.on("request", (request) => {
@@ -54,6 +69,7 @@ wsServer.on("request", (request) => {
       var gameMode = result.gameMode.toLowerCase();
       var playerLimit = result.playerSize;
       var isPrivate = result.isPrivate;
+      var clientId = result.clientId;
 
       games[gameId] = {
         id: gameId,
@@ -93,14 +109,17 @@ wsServer.on("request", (request) => {
         method: "create",
         game: games[gameId],
       };
-
-      const con = clients[clientId].connection;
-      con.send(
-        JSON.stringify(payload, (key, value) => {
-          if (key === "timer") return "";
-          return value;
-        })
-      );
+      try {
+        const con = clients[clientId].connection;
+        con.send(
+          JSON.stringify(payload, (key, value) => {
+            if (key === "timer") return "";
+            return value;
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
 
       //This is to send a message to the discord chat with the game code
       /*
@@ -143,43 +162,60 @@ wsServer.on("request", (request) => {
       //TODO Need to dispose of game properly when a player chooses to leave
       //leaveGame(result)
     }
+    if (result.method == "login") {
+      login(result, connection);
+    }
+    if (result.method == "signup") {
+      signup(result, connection);
+    }
+    if (result.method == "guest") {
+      const clientId = guid();
+      clients[clientId] = {
+        connection: connection,
+      };
+
+      const payload = {
+        method: "guest",
+        clientId: clientId,
+      };
+
+      try {
+        connection.send(JSON.stringify(payload));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if ((result.method = "serverBrowser")) {
+      connection.send(
+        JSON.stringify({
+          method: "serverBrowser",
+          games: gameList,
+        })
+      );
+    }
   });
 
   //generate a new client id
+  /*
   const clientId = guid();
   clients[clientId] = {
     connection: connection,
   };
+  
 
   const payload = {
     method: "connect",
-    clientId: clientId,
+    //clientId: clientId,
     games: gameList,
   };
 
-  console.log(`Client ${clientId} connected`);
+  
   try {
     connection.send(JSON.stringify(payload));
   } catch (error) {
     console.error(error);
   }
-});
 
-function S4() {
-  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-}
-const guid = () =>
-  (
-    S4() +
-    S4() +
-    "-" +
-    S4() +
-    "-4" +
-    S4().substring(0, 3) +
-    "-" +
-    S4() +
-    "-" +
-    S4() +
-    S4() +
-    S4()
-  ).toLowerCase();
+  */
+  console.log(`A client has connected`);
+});
