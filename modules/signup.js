@@ -18,6 +18,9 @@ function signup(result, websocketCon) {
                 connection.release(); // return the connection to pool
                 if (!err) {
                   console.log(rows);
+                  websocketCon.send(JSON.stringify({
+                    method : "signupComplete"
+                  }))
                 } else {
                   console.log(err);
                 }
