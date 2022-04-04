@@ -17,9 +17,9 @@ function login(result, websocketCon) {
             return;
           }
 
-          bcrypt.compare(
-            result.password,
-            databasePassword,
+          bcrypt.compare(//This is using bcrypt to compare thr hashed password with the user supplied one
+            result.password, //This is the password from the user
+            databasePassword,//This is the password from the database
             function (err, same) {
               if (same) {
                 console.log("its a match");

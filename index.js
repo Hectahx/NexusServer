@@ -120,22 +120,9 @@ wsServer.on("request", (request) => {
       } catch (error) {
         console.error(error);
       }
-
-      //This is to send a message to the discord chat with the game code
-      /*
-      axios({
-        method: "POST",
-        url : process.env.DISCORD_WEBHOOK, //URL for Nexus Server
-        data: {
-          username: "Nexus Game Codes",
-          avatar_url: "https://cdn.discordapp.com/icons/895666199550099507/cb4bb3ea134d855319bd34bb3b0b4ec9.png?size=4096",
-          content: `Game code is ${gameId}`,
-        },
-      });
-      */
     }
 
-    if (result.method === "join") {
+    if (result.method === "join") {  //These if statements are all executed when the server gets sent data and the method is one of the ones listed
       joinGame(result);
     }
 

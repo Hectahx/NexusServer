@@ -28,7 +28,7 @@ function playMove(result) {
   try {
     isEnabled = state.cards["enabledCard"][color].isActive;
   } catch {
-    //this is to check if the user has his enabled card  active
+    //this is to check if the user has his enabled card active
     isEnabled = false;
   }
 
