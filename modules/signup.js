@@ -11,13 +11,16 @@ function signup(result, websocketCon) {
         `SELECT * from users where email = '${result.email}' OR user_name = '${result.username}'`,
         (err, rows) => {
           connection.release();
-          if (rows.length != 0) {
+          if (rows.length == 0) {
             connection.query(
               `INSERT INTO users (id, email, user_name, password, clientId, time) VALUES (NULL, '${result.email}', '${result.username}', '${hash}', '${guidString}', CURRENT_TIMESTAMP)`,
               (err, rows) => {
                 connection.release(); // return the connection to pool
                 if (!err) {
                   console.log(rows);
+                  websocketCon.send(JSON.stringify({
+                    method : "signupComplete"
+                  }))
                 } else {
                   console.log(err);
                 }
